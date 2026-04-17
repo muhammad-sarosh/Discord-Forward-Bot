@@ -23,6 +23,13 @@ def chunk_text(text: str, limit: int) -> List[str]:
     return [text[i:i + limit] for i in range(0, len(text), limit)]
 
 
+def format_message_timestamp(dt: datetime) -> str:
+    """Return a Discord-like timestamp without platform-specific strftime codes."""
+    hour_12 = dt.hour % 12 or 12
+    meridiem = "AM" if dt.hour < 12 else "PM"
+    return f"{dt.month:02d}/{dt.day:02d}/{dt.year} {hour_12}:{dt.minute:02d} {meridiem}"
+
+
 async def send_with_files(
     channel: discord.abc.Messageable,
     content: Optional[str],
@@ -207,7 +214,7 @@ async def on_ready():
             if config.SHOW_TIMESTAMPS:
                 # Example: 12/07/2025 3:06 PM (UTC timestamps by default; discord.py uses aware datetimes)
                 # If you need local time, convert with tzinfo before formatting.
-                timestamp_str = msg.created_at.strftime("%m/%d/%Y %-I:%M %p") if hasattr(datetime, "strftime") else ""
+                timestamp_str = format_message_timestamp(msg.created_at)
 
             header_line = ""
             if show_header_now and config.SHOW_AUTHOR_NAME:
